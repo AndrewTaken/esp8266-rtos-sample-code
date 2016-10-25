@@ -3,21 +3,22 @@
 
 ##Operation Steps:
 
-1. Enter path:/home/esp8266/Share, clone ESP8266 RTOS SDK to lubuntu environment by command: 
+1.Enter path:/home/esp8266/Share, clone ESP8266 RTOS SDK to lubuntu environment by command: 
        
 		git clone https://github.com/espressif/esp8266-rtos-sample-code.git
 	   
-2. Enter SDK folder:/home/esp8266/Share/ESP8266_RTOS_SDK, Copy example folder "app" next to bin/ folder in the SDK folder. The SDK folder should have folders inside it like : bin, examples, third party...copy ./include/mebedtls.rar to SDK/include,copy ./third_part/esp_iot_sdk_v1.3.0_gizwits.zip to SDK/third_part,copy ./lib/libmbedls.a to SDK/lib,then uncompress mebedtls.rar and config SSID and esp_iot_sdk_v1.3.0_gizwits.zip ,PASSWORD
+2.Enter SDK folder:/home/esp8266/Share/ESP8266_RTOS_SDK, Copy example folder "app" next to bin/ folder in the SDK folder. The SDK folder should have folders inside it like : bin, examples, third party...copy ./include/mebedtls.rar to SDK/include,copy ./third_part/esp_iot_sdk_v1.3.0_gizwits.zip to SDK/third_part,copy ./lib/libmbedls.a to SDK/lib,then uncompress mebedtls.rar and config SSID and esp_iot_sdk_v1.3.0_gizwits.zip ,PASSWORD
+			
 		for example:
 		#define SSID "ASUS_WAC"
 		#define PASSWORD "12345678"
 
-3. If the SDK path is not updated in gen_misc.sh, right click the script and edit the path to bin folder and SDK folder. for the current SDK, the gen_mish.sh would have a path like:
+3.If the SDK path is not updated in gen_misc.sh, right click the script and edit the path to bin folder and SDK folder. for the current SDK, the gen_mish.sh would have a path like:
        
 		export SDK_PATH="/home/esp8266/Share/ESP8266_RTOS_SDK"
 		export BIN_PATH="/home/esp8266/Share/ESP8266_RTOS_SDK/bin"
 	   
-4. Enter example folder, run ./gen_misc.sh, and follow below steps to fininsh the sample code compile:
+4.Enter example folder, run ./gen_misc.sh, and follow below steps to fininsh the sample code compile:
 	
 		Option 1 > Enter Y/y, 
 		Option 2 > Enter 1. 
@@ -25,7 +26,7 @@
 		Option 4 > Enter Default(Just Press enter)
 		Option 5 > Enter 5.
 	   
-5. "user1.2048.new.5.bin" should be found in "/home/esp8266/Share/ESP8266_RTOS_SDK/bin/upgrade", Flash the Binaries with ESP Flashing tool at the instructed Locations. Download bin files to ESP-LAUNCHER as below sittings.
+5."user1.2048.new.5.bin" should be found in "/home/esp8266/Share/ESP8266_RTOS_SDK/bin/upgrade", Flash the Binaries with ESP Flashing tool at the instructed Locations. Download bin files to ESP-LAUNCHER as below sittings.
 		
 		Download address of each bin files:
 		blank.bin				            0x1FE000

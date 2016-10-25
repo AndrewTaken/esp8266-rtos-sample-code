@@ -1,13 +1,15 @@
 ##SDK Version : ESP8266_RTOS_SDK_V1.4.2_16_07_04
 ##Platform : ESP-LAUNCHER BAOARD
 
-##Operation Steps:
+##Purpose:
+FOTA function test with local server.
 
-1. Enter path:/home/esp8266/Share, clone ESP8266 RTOS SDK to lubuntu environment by command: 
+##Procedure:
+1.Enter path:/home/esp8266/Share, clone ESP8266 RTOS SDK to lubuntu environment by command: 
        
 		git clone https://github.com/espressif/esp8266-rtos-sample-code.git
 	   
-2. Enter SDK folder:/home/esp8266/Share/ESP8266_RTOS_SDK, Copy example folder "FOTA_Demo" next to bin/ folder in the SDK folder. The SDK folder should have folders inside it like : bin, examples, third party...,and inpress your own WIFI SSID and key to the defination "SSID" , "PASSWORD", "REMOTE SERVER IP" and "PORT"......int the file "ota_config.h"
+2.Enter SDK folder:/home/esp8266/Share/ESP8266_RTOS_SDK, Copy example folder "FOTA_Demo" next to bin/ folder in the SDK folder. The SDK folder should have folders inside it like : bin, examples, third party...,and inpress your own WIFI SSID and key to the defination "SSID" , "PASSWORD", "REMOTE SERVER IP" and "PORT"......int the file "ota_config.h"
 
 		for example:
 		#define DEMO_SERVER "192.168.17.130"
@@ -15,12 +17,12 @@
 		#define DEMO_WIFI_SSID     "test"
 		#define DEMO_WIFI_PASSWORD  "espressif"
 
-3. If the SDK path is not updated in gen_misc.sh, right click the script and edit the path to bin folder and SDK folder. for the current SDK, the gen_mish.sh would have a path like:
+3.If the SDK path is not updated in gen_misc.sh, right click the script and edit the path to bin folder and SDK folder. for the current SDK, the gen_mish.sh would have a path like:
        
 		export SDK_PATH="/home/esp8266/Share/ESP8266_RTOS_SDK"
 		export BIN_PATH="/home/esp8266/Share/ESP8266_RTOS_SDK/bin"
 	   
-4. Enter example folder, run ./gen_misc.sh, and follow below steps to fininsh the sample code compile:
+4.Enter example folder, run ./gen_misc.sh, and follow below steps to fininsh the sample code compile:
 	
 		Option 1 will be automatically selected, 
 		Option 2 > Enter 1. 
@@ -28,24 +30,26 @@
 		Option 4 > Enter Default(Just Press enter)
 		Option 5 > Enter 5.
 	   
-5. "user1.2048.new.5.bin" should be found in "/home/esp8266/Share/ESP8266_RTOS_SDK/bin/upgrade", Flash the Binaries with ESP Flashing tool at the instructed Locations. Download bin files to ESP-LAUNCHER as below sittings.
+5."user1.2048.new.5.bin" should be found in "/home/esp8266/Share/ESP8266_RTOS_SDK/bin/upgrade", Flash the Binaries with ESP Flashing tool at the instructed Locations. Download bin files to ESP-LAUNCHER as below sittings.
 		
 		Download address of each bin files:
 		blank.bin				            0x1FE000
-		esp_init_data_default.bin			    0x1FC000
+		esp_init_data_default.bin			0x1FC000
 		boot_v1.5.bin					    0x00000
-		user1.2048.new.5.bin			            0x01000
+		user1.2048.new.5.bin                0x01000
 		
 		Flash download tool settings:
 		CrystalFreq: 26M
 		SPI SPEED: 40MHz
 		SPID MODE: QIO
-		FLASH SIZE: 16Mbit-C11
+		FLASH SIZE: 16Mbit-C1
 
 6. put "user1.2048.new.5.bin" and "user2.2048.new.5.bin" in remote server and rename them with "user1.bin" and "user2.bin".you can choose a Webserver ,for example Mini-Webserver software.
 
-##FOR VERIFY: 
-UART0 print as below after boot up.
+##Result:
+ESP8266 will download user1.bin or user2.bin from specific server configured. And reboot to new user bin after download process is finished. 
+
+##UART0 log@74880:
 
 	mode : sta(18:fe:34:97:f3:cd)
 	add if0
