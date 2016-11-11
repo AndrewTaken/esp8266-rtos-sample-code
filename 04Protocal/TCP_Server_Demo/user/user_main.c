@@ -90,6 +90,7 @@ void user_init(void)
 {      
 	printf("test new compile..\n");
 	printf("Please get the RTOS version of SDK.%s\n", system_get_sdk_version());
-    xTaskCreate(TCP_Server_Test,"TCP_Server_Test",500,NULL,6,NULL);
+	espconn_init();
+    	xTaskCreate(TCP_Server_Test,"TCP_Server_Test",500,NULL,6,NULL);
 }
 
