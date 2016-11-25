@@ -84,7 +84,7 @@ void TcpRecvCb(void *arg, char *pdata, unsigned short len)
 }
 void TcpReconnectCb(void *arg, sint8 err)
 {
-    struct espconn* tcp_server_local=arg;
+    	struct espconn* tcp_server_local=arg;
 	DBG_LINES("TCP CLIENT RECONNECT");
 	DBG_PRINT("status:%d\n",err);
 	DBG_PRINT("tcp client ip:%d.%d.%d.%d port:%d\n",tcp_server_local->proto.tcp->remote_ip[0],
@@ -114,7 +114,7 @@ void TcpLocalClient(void* arg)
 	tcp_client.type=ESPCONN_TCP;
 	tcp_client.proto.tcp=&tcp;
 	tcp.remote_port=TCP_SERVER_REMOTE_PORT;
-    memcpy(tcp.remote_ip,tcp_server_ip,sizeof(tcp_server_ip));
+   	memcpy(tcp.remote_ip,tcp_server_ip,sizeof(tcp_server_ip));
 	espconn_regist_connectcb(&tcp_client,TcpClientConnect);
 	espconn_regist_recvcb(&tcp_client,TcpRecvCb);
 	espconn_regist_reconcb(&tcp_client,TcpReconnectCb);
@@ -251,6 +251,7 @@ void TcpLocalServer(void* arg)
 	espconn_regist_sentcb(&tcp_server_local,TcpServerClienSendCb);
 	
 	espconn_accept(&tcp_server_local);
+	espconn_regist_time(&tcp_server_local,20,0);
 	vTaskDelete(NULL);
 }
 
