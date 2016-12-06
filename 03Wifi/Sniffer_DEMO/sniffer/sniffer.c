@@ -6,12 +6,11 @@ uint8  current_channel;
 uint16 channel_bits;
 os_timer_t check_sniffer;
 os_timer_t check_sniffer_2;
-
 SLIST_HEAD(router_info_head, router_info) router_list;
 
 
 struct rst_info rtc_info;
-void   wifi_scan_done(void *arg, STATUS status);
+void  wifi_scan_done(void *arg, STATUS status);
 
 
 void ICACHE_FLASH_ATTR
@@ -200,9 +199,10 @@ sniffer_system_init_done(void)
 *******************************************************************************/
 void sniffer_init(void)
 {
-    os_printf("Sniffer testing mode ....: %s\n", system_get_sdk_version());   
+     os_printf("Sniffer testing mode ....: %s\n", system_get_sdk_version());   
 
-	wifi_set_opmode(STATION_MODE);
-   sniffer_system_init_done();
-   vTaskDelete(NULL);
+     wifi_set_opmode(STATION_MODE);
+     os_delay_us(60000);
+     sniffer_system_init_done();
+     vTaskDelete(NULL);
 }
