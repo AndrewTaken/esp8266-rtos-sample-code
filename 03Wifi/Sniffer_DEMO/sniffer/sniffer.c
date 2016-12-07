@@ -6,61 +6,74 @@ uint8  current_channel;
 uint16 channel_bits;
 os_timer_t check_sniffer;
 os_timer_t check_sniffer_2;
+
 SLIST_HEAD(router_info_head, router_info) router_list;
 
 
 struct rst_info rtc_info;
-void  wifi_scan_done(void *arg, STATUS status);
+void   wifi_scan_done(void *arg, STATUS status);
 
 
 void ICACHE_FLASH_ATTR
 sniffer_wifi_promiscuous_rx(uint8 *buf, uint16 buf_len)
 {
+	uint8 *data;
 	uint16 i;
 	uint16 len;
 	uint16 cnt = 0;
-	struct router_info *info = NULL;
-	struct sniffer_buf * sniffer = (struct sniffer_buf *)buf;
-	if(buf_len == 12){
-		os_printf("%sM%d%s\n", sniffer->rx_ctrl.CWB?"H4":"H2", sniffer->rx_ctrl.MCS,  sniffer->rx_ctrl.FEC_CODING?"L ":"");
+	
+	if(buf_len == sizeof(struct RxControl)){
+		struct RxControl * rxCtrl = (struct RxControl *)buf;
+		os_printf("[%sM%d%s] rssi%d, len%d\n", rxCtrl->CWB?"H4":"H2", rxCtrl->MCS,  rxCtrl->FEC_CODING?"L ":""
+				, rxCtrl->rssi, rxCtrl->HT_length);
+		//os_printf("HT40 packet\n");
 		return;
-	} else if (buf_len == 128) {
+	} else if (buf_len == sizeof(struct sniffer_buf2)) {
+		//struct sniffer_buf2 * sniffer2 = (struct sniffer_buf2 *)buf;
 		//os_printf("manage pack\n");
         return; //manage pack
-    } else{
-    //os_printf("data... pack\n");
-		#if 1	
-		    len = sniffer->ampdu_info[0].length;
-			buf += sizeof(struct RxControl);
+    } else {
+    	struct router_info *info = NULL;
+		struct sniffer_buf * sniffer = (struct sniffer_buf *)buf;
+    	//os_printf("others pack\n");
+			
+		data = buf + sizeof(struct RxControl);
 
-			SLIST_FOREACH(info, &router_list, next) {
-				if ((buf[1] & 0x01) == 0x01) {	// just toDS
-					if (memcmp(info->bssid, buf + 4, 6) == 0) {
-						if (current_channel - 1 != info->channel) {	// check channel
-							return;
-						} else {
-							break;
-						}
+		SLIST_FOREACH(info, &router_list, next) {
+			if ((data[1] & 0x01) == 0x01) {	// just toDS
+				if (memcmp(info->bssid, data + 4, 6) == 0) {
+					if (current_channel - 1 != info->channel) {	// check channel
+						return;
+					} else {
+						break;
 					}
 				}
 			}
+		}
 
-			if (info == NULL) {
-				return;
+		if (info == NULL) {
+			return;
+		}
+
+		struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)data;
+		if (sniffer->cnt == 1) {
+			len = sniffer->ampdu_info[0].length;
+			//get ieee80211_hdr/data len to do user task
+			os_printf("[len] %d, rssi %d\n",len,sniffer->rx_ctrl.rssi);
+		} else {
+			int i;
+			os_printf("rx ampdu %d\n", sniffer->cnt);
+			for (i = 0; i < sniffer->cnt; i++) {
+				hdr->seq_ctrl = sniffer->ampdu_info[i].seq;
+				memcpy(&hdr->addr3, sniffer->ampdu_info[i].address3, 6);
+				len = sniffer->ampdu_info[i].length;
+				//get ieee80211_hdr/data len to do user task
+				os_printf("[LEN] %d, RSSI %d\n",len,sniffer->rx_ctrl.rssi);
 			}
-			if(sniffer->cnt > 1)
-				os_printf("rx ampdu %d\n", sniffer->cnt);
-		    while(cnt < sniffer->cnt){
-			   	len = sniffer->ampdu_info[cnt++].length;
-				os_printf("len = %d\n",len);
-			}
-
-			
-
-			
-		#endif
+		}
 	}
 }
+
 
 void ICACHE_FLASH_ATTR
 sniffer_channel_timer_cb(void *arg)
@@ -71,8 +84,8 @@ sniffer_channel_timer_cb(void *arg)
 		if ((channel_bits & (1 << i)) != 0) {
 			current_channel = i + 1;
 			wifi_set_channel(i);
-			os_printf("current channel2 %d--------------------------------------------%d\n", i, system_get_time());
-			os_timer_arm(&channel_timer, 5000, 0);
+			os_printf("current channel %d--------------------------------------------%d\n", i, system_get_time());
+			os_timer_arm(&channel_timer, 1000, 0);
 			break;
 		}
 	}
@@ -83,8 +96,8 @@ sniffer_channel_timer_cb(void *arg)
 			if ((channel_bits & (1 << i)) != 0) {
 				current_channel = i + 1;
 				wifi_set_channel(i);
-				os_printf("current channel3 %d--------------------------------------------%d\n", i, system_get_time());
-				os_timer_arm(&channel_timer, 5000, 0);
+				os_printf("current channel %d--------------------------------------------%d\n", i, system_get_time());
+				os_timer_arm(&channel_timer, 1000, 0);
 				break;
 			}
 		}
@@ -147,7 +160,7 @@ sniffer_wifi_scan_done(void *arg, STATUS status)
 
 		os_timer_disarm(&channel_timer);
 		os_timer_setfn(&channel_timer, sniffer_channel_timer_cb, NULL);
-		os_timer_arm(&channel_timer, 5000, 0);
+		os_timer_arm(&channel_timer, 1000, 0);
 	} else {
 		os_printf("err, scan status %d\n", status);
 	}
@@ -199,10 +212,9 @@ sniffer_system_init_done(void)
 *******************************************************************************/
 void sniffer_init(void)
 {
-     os_printf("Sniffer testing mode ....: %s\n", system_get_sdk_version());   
+    os_printf("Sniffer testing mode ....: %s\n", system_get_sdk_version());   
 
-     wifi_set_opmode(STATION_MODE);
-     os_delay_us(60000);
-     sniffer_system_init_done();
-     vTaskDelete(NULL);
+	wifi_set_opmode(STATION_MODE);
+   sniffer_system_init_done();
+   vTaskDelete(NULL);
 }
