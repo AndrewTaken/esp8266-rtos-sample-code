@@ -89,6 +89,7 @@ void TcpLocalClient_Test()
 void user_init(void)
 {      
 	printf("test new compile..\n");
+	espconn_init();
     xTaskCreate(TcpLocalClient_Test,"TcpLocalClient_Test",500,NULL,6,NULL);
 }
 
